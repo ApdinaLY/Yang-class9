@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>青春纪念册 - 2024届毕业纪念</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .memory-wall {
+            column-count: 3;
+            column-gap: 1rem;
+        }
+        .memory-item {
+            break-inside: avoid;
+            margin-bottom: 1rem;
+            transition: transform 0.3s;
+        }
+        .memory-item:hover {
+            transform: scale(1.03);
+        }
+    </style>
+    <!-- 新增移动端视口设置 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <!-- 调整原横幅的上边距 -->
+    <header class="py-5 bg-primary text-white">  <!-- 移除 mt-5 类 -->
+        <div class="container text-center">
+            <h1 class="display-4">2024届毕业纪念</h1>
+            <p class="lead">时光不老，我们不散</p>
+        </div>
+    </header>
+
+    <!-- 修改同学录区块 -->
+    <section id="classmates" class="container my-5">
+        <h2 class="text-center mb-4">我们的同学</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4">
+            <!-- 原有卡片结构保持不变 -->
+            <!-- 更多同学卡片... -->
+        </div>
+    </section>
+
+    <style>
+        /* 添加移动端响应式样式 */
+        @media (max-width: 768px) {
+            .memory-wall {
+                column-count: 1;
+            }
+            
+            .card-title {
+                font-size: 1.2rem;
+            }
+            
+            .memory-item {
+                margin-bottom: 0.5rem;
+            }
+        }
+        
+        /* 确保图片在小屏幕下完全填充 */
+        .card-img-top, .memory-item {
+            width: 100%;
+            height: auto;
+        }
+    </style>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            // 添加 masonry 响应式布局
+            new Masonry('.memory-wall', {
+                itemSelector: '.memory-item',
+                columnWidth: '.memory-item',
+                percentPosition: true,
+                transitionDuration: 0
+            });
+        });
+    </script>
+        <!-- 照片记忆墙 -->
+    <div class="container my-5">
+        <h2 class="text-center mb-4">青春记忆</h2>
+        <div class="memory-wall">
+            <!-- 照片会自动排列 -->
+            <img src="assets/images/photo1.jpg" class="memory-item img-fluid rounded">
+            <!-- 更多图片... -->
+        </div>
+    </div>
+
+    <!-- 修正后的脚本部分 -->
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="js/masonry.pkgd.min.js"></script>
+    <script>
+        // 已移除所有上传相关代码
+        window.addEventListener('DOMContentLoaded', () => {
+            // 可添加 masonry 初始化代码（如需）
+        });
+    </script>
+</body>
+</html>
