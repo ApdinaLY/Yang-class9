@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>青春纪念册 - 2024届毕业纪念</title>
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .memory-wall {
+            column-count: 3;
+            column-gap: 1rem;
+        }
+        .memory-item {
+            break-inside: avoid;
+            margin-bottom: 1rem;
+            transition: transform 0.3s;
+        }
+        .memory-item:hover {
+            transform: scale(1.03);
+        }
+    </style>
+</head>
+<body>
+    <!-- 导航栏 -->
+    <!-- 在导航栏添加上传按钮 -->
+    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">青春纪念册</a>
+            <div class="navbar-nav">
+                <a class="nav-link active" href="index.html">首页</a>
+                <a class="nav-link" href="classmates.html">同学录</a>
+                <a class="nav-link" href="messages.html">留言墙</a>
+            </div>
+            <!-- 新增上传按钮 -->
+            <div class="navbar-nav ms-auto">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#uploadModal">
+                    📤 上传照片
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 在照片记忆墙后添加模态框 -->
+    <div class="modal fade" id="uploadModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">上传青春记忆</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="uploadForm">
+                        <div class="mb-3">
+                            <input type="file" class="form-control" id="photoInput" accept="image/*" required>
+                        </div>
+                        <div class="preview-container text-center mb-3"></div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="submit" class="btn btn-primary" form="uploadForm">上传</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 首页横幅 -->
+    <header class="py-5 mt-5 bg-primary text-white">
+        <div class="container text-center">
+            <h1 class="display-4">2024届毕业纪念</h1>
+            <p class="lead">时光不老，我们不散</p>
+        </div>
+    </header>
+
+    <!-- 照片记忆墙 -->
+    <div class="container my-5">
+        <h2 class="text-center mb-4">青春记忆</h2>
+        <div class="memory-wall">
+            <!-- 照片会自动排列 -->
+            <img src="assets/images/photo1.jpg" class="memory-item img-fluid rounded">
+            <!-- 更多图片... -->
+        </div>
+    </div>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="js/masonry.pkgd.min.js"></script>
+    <script>
+    // 新增上传功能脚本
+    const MAX_STORAGE = 50;
+    const memoryWall = document.querySelector('.memory-wall');
+    
+    // 图片预览
+    document.getElementById('photoInput').addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                document.querySelector('.preview-container').innerHTML = 
+                    `<img src="${event.target.result}" class="img-fluid rounded" style="max-height: 200px">`;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // 表单提交处理
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const file = document.getElementById('photoInput').files[0];
+        
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                // 创建新图片元素
+                const img = document.createElement('img');
+                img.className = 'memory-item img-fluid rounded';
+                img.src = event.target.result;
+    
+                // 更新本地存储
+                const stored = JSON.parse(localStorage.getItem('memories') || '[]');
+                stored.unshift(event.target.result); // 添加到数组开头
+                if (stored.length > MAX_STORAGE) stored.pop();
+                localStorage.setItem('memories', JSON.stringify(stored));
+    
+                // 插入到记忆墙顶部并重置表单
+                memoryWall.insertBefore(img, memoryWall.firstElementChild);
+                e.target.reset();
+                document.querySelector('.preview-container').innerHTML = '';
+                bootstrap.Modal.getInstance(document.getElementById('uploadModal')).hide();
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // 加载存储的照片
+    window.addEventListener('DOMContentLoaded', () => {
+        const stored = JSON.parse(localStorage.getItem('memories') || '[]');
+        stored.forEach(src => {
+            const img = document.createElement('img');
+            img.className = 'memory-item img-fluid rounded';
+            img.src = src;
+            memoryWall.appendChild(img);
+        });
+    });
+    </script>
+</body>
+</html>
