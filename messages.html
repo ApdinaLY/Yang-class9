@@ -3,275 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>留言墙 - 青春纪念册</title>
-    <!-- 修改现有Bootstrap链接 -->
+    <title>同学录 - 青春纪念册</title>
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <!-- 导航栏（与首页一致） -->
-    <!-- 在导航栏添加管理员菜单 -->
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container">
             <a class="navbar-brand" href="index.html">青春纪念册</a>
             <div class="navbar-nav">
                 <a class="nav-link" href="index.html">首页</a>
-                <a class="nav-link" href="classmates.html">同学录</a>
-                <!-- 修正当前页面激活状态 -->
-                <a class="nav-link active" href="messages.html">留言墙</a>
+                <a class="nav-link active" href="messages.html">同学录</a>
+                <a class="nav-link" href="classmates.html">留言墙</a>
             </div>
         </div>
     </nav>
 
-    <!-- 在导航栏下方添加留言墙主体内容 -->
     <div class="container my-5">
-        <h2 class="text-center mb-4">留言祝福</h2>
+        <h2 class="text-center mb-4">我们的同学</h2>
         
-        <!-- 留言表单 -->
+        <!-- 上传新同学表单 -->
         <div class="card mb-4">
             <div class="card-body">
-                <form id="messageForm">
-                    <textarea class="form-control mb-3" placeholder="写下你的祝福..." rows="3" required></textarea>
-                    <button type="submit" class="btn btn-primary">发布留言</button>
+                <form id="uploadForm">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="name" placeholder="姓名" required>
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="form-control" id="motto" placeholder="座右铭" rows="2"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <input type="file" class="form-control" id="avatar" accept="image/*" required>
+                    </div>
+                    <button type="submit" class="btn btn-success">添加同学</button>
                 </form>
             </div>
         </div>
-    
-        <!-- 留言列表 -->
-        <div class="list-group" id="messageList">
-            <!-- 动态加载留言 -->
+
+        <div class="row" id="classmates-list">
+            <!-- 同学信息动态加载 -->
         </div>
     </div>
 
+    <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script>
-    // 新增留言功能脚本
-    const MAX_MESSAGES = 100;
-    let messages = JSON.parse(localStorage.getItem('classMessages') || '[]');
+    // 同学数据
+    let classmates = JSON.parse(localStorage.getItem('classmatesData') || '[]');
     
-    function renderMessages() {
-        const container = document.getElementById('messageList');
-        container.innerHTML = messages.map(msg => `
-            <div class="list-group-item">
-                <div class="d-flex align-items-center">
-                    <img src="assets/avatars/${msg.avatar}" class="rounded-circle me-3" width="40" height="40">
-                    <div>
-                        <h6 class="mb-0">${msg.author} <small class="text-muted">${new Date(msg.timestamp).toLocaleString()}</small></h6>
-                        <p class="mb-0 mt-1">${msg.content}</p>
+    // 渲染同学卡片
+    function renderClassmates() {
+        const container = document.getElementById('classmates-list');
+        container.innerHTML = classmates.map(classmate => `
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    <img src="${classmate.avatar}" class="card-img-top" alt="${classmate.name}">
+                    <div class="card-body">
+                        <h5 class="card-title">${classmate.name}</h5>
+                        <p class="text-muted">${classmate.motto}</p>
+                        <div class="badge bg-secondary">${classmate.memories.join(' · ')}</div>
                     </div>
                 </div>
             </div>
         `).join('');
     }
-    
-    document.getElementById('messageForm').addEventListener('submit', function(e) {
+
+    // 处理表单提交
+    document.getElementById('uploadForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const content = this.querySelector('textarea').value.trim();
+        const reader = new FileReader();
+        const file = document.getElementById('avatar').files[0];
         
-        if (content) {
-            messages.unshift({
-                author: "访客",
-                avatar: "guest.jpg",
-                content: content,
-                timestamp: Date.now()
-            });
+        reader.onload = function(event) {
+            const newClassmate = {
+                name: document.getElementById('name').value,
+                motto: document.getElementById('motto').value,
+                avatar: event.target.result,
+                memories: ["新同学"]
+            };
             
-            if (messages.length > MAX_MESSAGES) messages.pop();
-            localStorage.setItem('classMessages', JSON.stringify(messages));
-            renderMessages();
+            classmates.push(newClassmate);
+            localStorage.setItem('classmatesData', JSON.stringify(classmates));
+            renderClassmates();
             this.reset();
-        }
+        };
+        
+        reader.readAsDataURL(file);
     });
-    
-    // 初始化加载
-    renderMessages();
-    </script>
 
-    <!-- 在管理员下拉菜单中添加修改密码选项 -->
-    <ul class="dropdown-menu">
-        <li><button class="dropdown-item" onclick="clearAllMessages()">清空留言</button></li>
-        <li><button class="dropdown-item" data-bs-toggle="modal" data-bs-target="#changePwdModal">修改密码</button></li>
-    </ul>
-    
-    <!-- 在登录模态框后添加密码修改模态框 -->
-    <div class="modal fade" id="changePwdModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">修改管理员密码</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="changePwdForm" onsubmit="return handleChangePassword(event)">
-                        <div class="mb-3">
-                            <input type="password" class="form-control" 
-                                   id="oldPassword" placeholder="原密码" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="password" class="form-control" 
-                                   id="newPassword" placeholder="新密码（至少6位）" required minlength="6">
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">确认修改</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <script>
-    // 添加密码修改处理函数
-    function handleChangePassword(e) {
-        e.preventDefault();
-        const oldPwd = document.getElementById('oldPassword').value;
-        const newPwd = document.getElementById('newPassword').value;
-        
-        const storedAdmin = JSON.parse(localStorage.getItem(ADMIN_KEY));
-        if (!storedAdmin) return alert('管理员账户不存在');
-        
-        if (storedAdmin.password !== oldPwd) {
-            return alert('原密码输入错误');
-        }
-        
-        if (newPwd.length < 6) {
-            return alert('密码长度至少需要6位');
-        }
-        
-        storedAdmin.password = newPwd;
-        localStorage.setItem(ADMIN_KEY, JSON.stringify(storedAdmin));
-        
-        alert('密码修改成功！');
-        bootstrap.Modal.getInstance(document.getElementById('changePwdModal')).hide();
-        document.getElementById('changePwdForm').reset();
-    }
-    
-    // 在initAdminAccount中增加密码长度校验
-    function initAdminAccount() {
-        if (!localStorage.getItem(ADMIN_KEY)) {
-            const defaultAdmin = {
-                username: 'admin2024',
-                password: 'graduation@2024' // 初始密码必须符合长度要求
-            };
-            // 增加密码长度校验
-            if (defaultAdmin.password.length < 6) {
-                alert('初始密码长度不足，请重新设置');
-                return;
-            }
-            localStorage.setItem(ADMIN_KEY, JSON.stringify(defaultAdmin));
-        }
-    }
+    // 初始加载
+    renderClassmates();
     </script>
-
-    <!-- 在页面底部添加登录模态框 -->
-    <div class="modal fade" id="loginModal">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">管理员登录</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="adminAuthForm" onsubmit="return handleAdminAuth(event)">
-                        <div class="mb-3">
-                            <input type="text" class="form-control" id="username" 
-                                   placeholder="管理员账号" required>
-                        </div>
-                        <div class="mb-3">
-                            <input type="password" class="form-control" id="password" 
-                                   placeholder="密码" required>
-                        </div>
-                        <div class="form-check mb-3">
-                            <input type="checkbox" class="form-check-input" id="registerCheck">
-                            <label class="form-check-label" for="registerCheck">首次使用创建账号</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">验证身份</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </script>
-
-    <script>
-    // 在原有脚本后添加管理员功能
-    let isAdmin = false;
-    const ADMIN_KEY = 'classAdmin';
-    
-    // 初始化管理员账户
-    function initAdminAccount() {
-        if (!localStorage.getItem(ADMIN_KEY)) {
-            const defaultAdmin = {
-                username: 'admin2024',
-                password: 'graduation@2024' // 初始密码建议修改
-            };
-            localStorage.setItem(ADMIN_KEY, JSON.stringify(defaultAdmin));
-        }
-    }
-    
-    // 登录/注册处理
-    function handleAdminAuth(e) {
-        e.preventDefault();
-        const username = document.getElementById('username').value;
-        const password = document.getElementById('password').value;
-        const isRegister = document.getElementById('registerCheck').checked;
-    
-        const storedAdmin = JSON.parse(localStorage.getItem(ADMIN_KEY) || 'null');
-        
-        if (isRegister) {
-            if (storedAdmin) return alert('已有管理员账户，请直接登录');
-            localStorage.setItem(ADMIN_KEY, JSON.stringify({ username, password }));
-            alert('管理员账户创建成功！');
-            toggleAdminUI(true);
-            bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
-        } else {
-            if (!storedAdmin || storedAdmin.username !== username || storedAdmin.password !== password) {
-                return alert('账号或密码错误');
-            }
-            toggleAdminUI(true);
-            bootstrap.Modal.getInstance(document.getElementById('loginModal')).hide();
-        }
-    }
-    
-    // 切换管理员界面
-    function toggleAdminUI(isAdmin) {
-        document.getElementById('adminMenu').style.display = isAdmin ? 'block' : 'none';
-        document.getElementById('loginBtn').style.display = isAdmin ? 'none' : 'block';
-    }
-    
-    // 清空留言
-    function clearAllMessages() {
-        if (confirm('确定要清空所有留言吗？')) {
-            localStorage.removeItem('classMessages');
-            messages = [];
-            renderMessages();
-        }
-    }
-    
-    // 初始化
-    initAdminAccount();
-    
-    // 添加删除按钮到每条留言
-    function renderMessages() {
-        const container = document.getElementById('messageList');
-        container.innerHTML = messages.map((msg, index) => `
-            <div class="list-group-item">
-                ${isAdmin ? `<button class="btn btn-danger btn-sm float-end" 
-                    onclick="deleteMessage(${index})">删除</button>` : ''}
-                <div class="d-flex align-items-center">
-                    <!-- 原有留言内容保持不变 -->
-                </div>
-            </div>
-        `).join('');
-    }
-    
-    // 删除留言功能
-    function deleteMessage(index) {
-        if (isAdmin) {
-            messages.splice(index, 1);
-            localStorage.setItem('classMessages', JSON.stringify(messages));
-            renderMessages();
-        }
-    }
-    
-    // 页面加载时检查登录状态
-    window.addEventListener('DOMContentLoaded', () => {
-        // 原有初始化代码...
-        initAdminAccount();
-    });
-    </script>
+</body>
+</html>
