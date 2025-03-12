@@ -18,12 +18,12 @@
             transform: scale(1.03);
         }
     </style>
-    <!-- 新增移动端视口设置 -->
+    <!-- 移动端视口设置 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
     <!-- 调整原横幅的上边距 -->
-    <header class="py-5 bg-primary text-white">  <!-- 移除 mt-5 类 -->
+    <header class="py-5 bg-primary text-white">
         <div class="container text-center">
             <h1 class="display-4">2025届毕业纪念</h1>
             <p class="lead">时光不老，我们不散</p>
@@ -34,13 +34,33 @@
     <section id="classmates" class="container my-5">
         <h2 class="text-center mb-4">无人区？</h2>
         <div class="row row-cols-1 row-cols-md-3 g-4">
-            <!-- 原有卡片结构保持不变 -->
+            <div class="col">
+                <div class="card h-100" onclick="toggleYanggangWindow()" style="cursor: pointer;">
+                    <img src="assets/yanggang.webp" class="card-img-top img-fluid rounded-top">
+                    <div class="card-body">
+                        <h5 class="card-title">杨罡</h5>
+                        <p class="card-text">如果有那样一个惊才绝艳的人，除了我，还能是谁？<br>
+                            一本书重新读一遍，我的新感悟，就是我的新结局<br>
+                            英俊无敌霸气侧漏的帅哥杨罡</p>
+                    </div>
+                </div>
+            </div>
             <div class="col">
                 <div class="card h-100">
                     <img src="assets/boyuran.webp" class="card-img-top img-fluid rounded-top">
                     <div class="card-body">
                         <h5 class="card-title">卜宇然</h5>
                         <p class="card-text">小奶狗</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card h-100">
+                    <!--img src="assets/hanjiaxiang.webp" class="card-img-top img-fluid rounded-top"-->
+                    <div class="card-body">
+                        <h5 class="card-title">韩家翔</h5>
+                        <p class="card-text">大家好，我叫果么，水果的果～什么的么～<br>
+                            美丽动人的少妇[滑稽]</p>
                     </div>
                 </div>
             </div>
@@ -87,16 +107,18 @@
         <h2 class="text-center mb-4">青春记忆</h2>
         <div class="memory-wall">
             <!-- 照片会自动排列 -->
-            <img src="assets/images/photo1.jpg" class="memory-item img-fluid rounded">
+            <img src="assets/photo1.webp" class="memory-item img-fluid rounded">
+            <img src="assets/photo2.webp" class="memory-item img-fluid rounded">
+            <img src="assets/photo3.webp" class="memory-item img-fluid rounded">
+            <img src="assets/photo4.webp" class="memory-item img-fluid rounded">
+            <img src="assets/photo5.webp" class="memory-item img-fluid rounded">
             <!-- 更多图片... -->
         </div>
     </div>
 
-    <!-- 修正后的脚本部分 -->
     <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
     <script src="js/masonry.pkgd.min.js"></script>
     <script>
-        // 已移除所有上传相关代码
         window.addEventListener('DOMContentLoaded', () => {
             // 可添加 masonry 初始化代码（如需）
         });
@@ -108,3 +130,59 @@
     </div>
 </body>
 </html>
+
+<script>
+    let yanggangWindow = null;
+    
+    function toggleYanggangWindow() {
+        if(yanggangWindow && !yanggangWindow.closed) {
+            yanggangWindow.close();
+        } else {
+            yanggangWindow = window.open('', '_blank', 'width=800,height=600');
+            yanggangWindow.document.write(`
+                <html>
+                    <head>
+                        <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+                    </head>
+                    <body style="margin:0; background:#f8f9fa">
+                        <div id="yanggangCarousel" class="carousel slide" data-bs-ride="carousel">
+                            <div class="carousel-inner">
+                                <div class="carousel-item active">
+                                    <img src="assets/yanggang1.webp" class="d-block w-100" alt="杨罡照片1">
+                                </div>
+                                <div class="carousel-item">
+                                    <img src="assets/yanggang2.webp" class="d-block w-100" alt="杨罡照片2">
+                                </div>
+                                <!-- 添加更多图片 -->
+                            </div>
+                            <button class="carousel-control-prev" type="button" data-bs-target="#yanggangCarousel" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon"></span>
+                            </button>
+                            <button class="carousel-control-next" type="button" data-bs-target="#yanggangCarousel" data-bs-slide="next">
+                                <span class="carousel-control-next-icon"></span>
+                            </button>
+                        </div>
+                        <script src="https://cdn.bootcdn.net/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"><\/script>
+                        <script>
+                            // 修正后的点击事件处理
+                            const closeWindow = (e) => {
+                                if (!e.target.closest('.carousel-control')) {
+                                    window.close();
+                                }
+                            };
+                            document.addEventListener('click', closeWindow);
+                            
+                            // 显式处理按钮点击
+                            document.querySelectorAll('.carousel-control-prev, .carousel-control-next').forEach(btn => {
+                                btn.addEventListener('click', (e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                });
+                            });
+                        <\/script>
+                    </body>
+                </html>
+            `);
+        }
+    }
+</script>
